@@ -12,7 +12,7 @@ CREATE TABLE admin_users (
   name VARCHAR(150) NOT NULL,
   email VARCHAR(190) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('superadmin', 'admin', 'operator') NOT NULL DEFAULT 'admin',
+  role ENUM('superadmin', 'rrhh', 'supervisor', 'operator') NOT NULL DEFAULT 'rrhh',
   active TINYINT(1) NOT NULL DEFAULT 1,
   last_login_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

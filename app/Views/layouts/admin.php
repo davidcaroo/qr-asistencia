@@ -50,36 +50,54 @@ if ($error = flash('error')) {
             </li>
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Gestión</div>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/grupos'), ENT_QUOTES, 'UTF-8') ?>">
-                    <i class="fas fa-fw fa-layer-group"></i>
-                    <span>Grupos</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>">
-                    <i class="fas fa-fw fa-users"></i>
-                    <span>Empleados</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/horarios'), ENT_QUOTES, 'UTF-8') ?>">
-                    <i class="fas fa-fw fa-clock"></i>
-                    <span>Horarios</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/qr'), ENT_QUOTES, 'UTF-8') ?>">
-                    <i class="fas fa-fw fa-qrcode"></i>
-                    <span>QR global</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/reportes/asistencia'), ENT_QUOTES, 'UTF-8') ?>">
-                    <i class="fas fa-fw fa-chart-line"></i>
-                    <span>Reportes</span>
-                </a>
-            </li>
+            <?php if (\App\Core\Auth::can('groups.manage')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/grupos'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-layer-group"></i>
+                        <span>Grupos</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (\App\Core\Auth::can('employees.view')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Empleados</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (\App\Core\Auth::can('schedules.manage')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/horarios'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-clock"></i>
+                        <span>Horarios</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (\App\Core\Auth::can('qr.view')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/qr'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-qrcode"></i>
+                        <span>QR global</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (\App\Core\Auth::can('reports.view')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/reportes/asistencia'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-chart-line"></i>
+                        <span>Reportes</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (\App\Core\Auth::can('audit.view')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/auditoria'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-shield-alt"></i>
+                        <span>Auditoría</span>
+                    </a>
+                </li>
+            <?php endif; ?>
             <hr class="sidebar-divider d-none d-md-block">
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>

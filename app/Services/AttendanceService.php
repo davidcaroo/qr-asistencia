@@ -9,6 +9,7 @@ use App\Infrastructure\Repositories\EmployeeRepository;
 use App\Infrastructure\Repositories\QrSessionRepository;
 use DateTimeImmutable;
 use PDOException;
+use App\Services\AuditLogger;
 
 final class AttendanceService
 {
@@ -69,6 +70,16 @@ final class AttendanceService
                 'user_agent' => mb_substr($userAgent, 0, 255),
                 'notes' => null,
             ]);
+
+            AuditLogger::recordEmployee((int) $employee['id'], 'attendance.marked', 'attendance_record', $attendanceId, [
+                'employee_id' => (int) $employee['id'],
+                'mark_type' => $markType,
+                'schedule_state' => $scheduleState,
+                'schedule_id' => $schedule['id'] ?? null,
+                'qr_session_id' => (int) $qrSession['id'],
+                'attendance_date' => $now->format('Y-m-d'),
+                'attendance_time' => $now->format('H:i:s'),
+            ], $ipAddress);
         } catch (PDOException $exception) {
             return [
                 'ok' => false,

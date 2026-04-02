@@ -11,12 +11,13 @@ use App\Core\Response;
 use App\Infrastructure\Repositories\GroupRepository;
 use App\Infrastructure\Repositories\GroupScheduleAssignmentRepository;
 use App\Infrastructure\Repositories\ScheduleRepository;
+use App\Services\AuditLogger;
 
 final class ScheduleController extends Controller
 {
     public function index(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         $repository = new ScheduleRepository();
         $assignmentRepository = new GroupScheduleAssignmentRepository();
@@ -39,14 +40,14 @@ final class ScheduleController extends Controller
 
     public function create(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         $this->renderForm('Nuevo horario', site_url('admin/horarios'), null);
     }
 
     public function store(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         if (!\App\Core\Csrf::validate((string) $request->input('_csrf', ''))) {
             flash('error', 'Token de seguridad inválido.');
@@ -61,14 +62,15 @@ final class ScheduleController extends Controller
             return;
         }
 
-        (new ScheduleRepository())->create($payload);
+        $scheduleId = (new ScheduleRepository())->create($payload);
+        AuditLogger::recordAdmin('schedule.created', 'work_schedule', $scheduleId, $payload, $request->ip());
         flash('success', 'Horario creado correctamente.');
         Response::redirect('/admin/horarios');
     }
 
     public function edit(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         $id = (int) $request->param('id', 0);
         $schedule = (new ScheduleRepository())->findById($id);
@@ -86,7 +88,7 @@ final class ScheduleController extends Controller
 
     public function update(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         $id = (int) $request->param('id', 0);
 
@@ -114,13 +116,14 @@ final class ScheduleController extends Controller
         }
 
         $repository->update($id, $payload);
+        AuditLogger::recordAdmin('schedule.updated', 'work_schedule', $id, $payload, $request->ip());
         flash('success', 'Horario actualizado correctamente.');
         Response::redirect('/admin/horarios');
     }
 
     public function destroy(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         $id = (int) $request->param('id', 0);
 
@@ -138,14 +141,20 @@ final class ScheduleController extends Controller
             ]);
         }
 
+        $existing = $repository->findById($id);
         $repository->delete($id);
+        AuditLogger::recordAdmin('schedule.deleted', 'work_schedule', $id, [
+            'name' => $existing['name'] ?? null,
+            'start_time' => $existing['start_time'] ?? null,
+            'end_time' => $existing['end_time'] ?? null,
+        ], $request->ip());
         flash('success', 'Horario eliminado correctamente.');
         Response::redirect('/admin/horarios');
     }
 
     public function destroyMany(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         if (!\App\Core\Csrf::validate((string) $request->input('_csrf', ''))) {
             flash('error', 'Token de seguridad inválido.');
@@ -160,13 +169,17 @@ final class ScheduleController extends Controller
         }
 
         $deleted = (new ScheduleRepository())->deleteMany($ids);
+        AuditLogger::recordAdmin('schedule.bulk_deleted', 'work_schedule', null, [
+            'ids' => $ids,
+            'deleted_count' => $deleted,
+        ], $request->ip());
         flash('success', 'Se eliminaron ' . $deleted . ' horario' . ($deleted === 1 ? '' : 's') . '.');
         Response::redirect('/admin/horarios');
     }
 
     public function assignStore(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         if (!\App\Core\Csrf::validate((string) $request->input('_csrf', ''))) {
             flash('error', 'Token de seguridad inválido.');
@@ -202,7 +215,7 @@ final class ScheduleController extends Controller
         }
 
         foreach ($selectedDays as $dayOfWeek) {
-            $assignmentRepository->create([
+            $assignmentId = $assignmentRepository->create([
                 'schedule_id' => $scheduleId,
                 'group_id' => $groupId,
                 'day_of_week' => $dayOfWeek,
@@ -210,6 +223,15 @@ final class ScheduleController extends Controller
                 'valid_to' => $validTo === '' ? null : $validTo,
                 'active' => $active,
             ]);
+
+            AuditLogger::recordAdmin('schedule.assigned', 'group_schedule_assignment', $assignmentId, [
+                'schedule_id' => $scheduleId,
+                'group_id' => $groupId,
+                'day_of_week' => $dayOfWeek,
+                'valid_from' => $validFrom === '' ? null : $validFrom,
+                'valid_to' => $validTo === '' ? null : $validTo,
+                'active' => $active,
+            ], $request->ip());
         }
 
         flash('success', 'Horario asignado al grupo correctamente para ' . count($selectedDays) . ' día' . (count($selectedDays) === 1 ? '' : 's') . '.');
@@ -218,7 +240,7 @@ final class ScheduleController extends Controller
 
     public function unassign(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('schedules.manage');
 
         $id = (int) $request->param('id', 0);
 
@@ -236,7 +258,13 @@ final class ScheduleController extends Controller
             ]);
         }
 
+        $assignment = $assignmentRepository->findById($id);
         $assignmentRepository->delete($id);
+        AuditLogger::recordAdmin('schedule.unassigned', 'group_schedule_assignment', $id, [
+            'schedule_id' => $assignment['schedule_id'] ?? null,
+            'group_id' => $assignment['group_id'] ?? null,
+            'day_of_week' => $assignment['day_of_week'] ?? null,
+        ], $request->ip());
         flash('success', 'Asignación eliminada correctamente.');
         Response::redirect('/admin/horarios');
     }

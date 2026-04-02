@@ -9,12 +9,13 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
 use App\Infrastructure\Repositories\GroupRepository;
+use App\Services\AuditLogger;
 
 final class GroupController extends Controller
 {
     public function index(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('groups.manage');
 
         $groups = (new GroupRepository())->all();
 
@@ -27,14 +28,14 @@ final class GroupController extends Controller
 
     public function create(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('groups.manage');
 
         $this->renderForm('Nuevo grupo', site_url('admin/grupos'), null);
     }
 
     public function store(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('groups.manage');
 
         if (!\App\Core\Csrf::validate((string) $request->input('_csrf', ''))) {
             flash('error', 'Token de seguridad inválido.');
@@ -61,14 +62,15 @@ final class GroupController extends Controller
             return;
         }
 
-        $repository->create($payload);
+        $groupId = $repository->create($payload);
+        AuditLogger::recordAdmin('group.created', 'employee_group', $groupId, $payload, $request->ip());
         flash('success', 'Grupo creado correctamente.');
         Response::redirect('/admin/grupos');
     }
 
     public function edit(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('groups.manage');
 
         $id = (int) $request->param('id', 0);
         $group = (new GroupRepository())->findById($id);
@@ -86,7 +88,7 @@ final class GroupController extends Controller
 
     public function update(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('groups.manage');
 
         $id = (int) $request->param('id', 0);
 
@@ -130,13 +132,14 @@ final class GroupController extends Controller
         }
 
         $repository->update($id, $payload);
+        AuditLogger::recordAdmin('group.updated', 'employee_group', $id, $payload, $request->ip());
         flash('success', 'Grupo actualizado correctamente.');
         Response::redirect('/admin/grupos');
     }
 
     public function destroy(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('groups.manage');
 
         $id = (int) $request->param('id', 0);
 
@@ -154,7 +157,12 @@ final class GroupController extends Controller
             ]);
         }
 
+        $group = $repository->findById($id);
         $repository->delete($id);
+        AuditLogger::recordAdmin('group.deleted', 'employee_group', $id, [
+            'name' => $group['name'] ?? null,
+            'slug' => $group['slug'] ?? null,
+        ], $request->ip());
         flash('success', 'Grupo eliminado correctamente.');
         Response::redirect('/admin/grupos');
     }

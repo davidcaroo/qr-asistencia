@@ -26,6 +26,16 @@ final class AdminUserRepository
         return $row ?: null;
     }
 
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM admin_users WHERE id = :id AND active = 1 LIMIT 1');
+        $stmt->execute(['id' => $id]);
+
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
+
     public function touchLastLogin(int $id): void
     {
         $stmt = $this->pdo->prepare('UPDATE admin_users SET last_login_at = UTC_TIMESTAMP() WHERE id = :id');

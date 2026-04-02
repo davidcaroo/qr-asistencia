@@ -14,7 +14,7 @@ final class DashboardController extends Controller
 {
     public function index(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('dashboard.view');
 
         $attendanceRepository = new AttendanceRepository();
         $employeeRepository = new EmployeeRepository();

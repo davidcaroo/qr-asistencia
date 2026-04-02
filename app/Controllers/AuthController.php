@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
+use App\Core\Auth;
 use App\Infrastructure\Repositories\AdminUserRepository;
 
 final class AuthController extends Controller
@@ -47,7 +48,7 @@ final class AuthController extends Controller
             'id' => (int) $user['id'],
             'name' => $user['name'],
             'email' => $user['email'],
-            'role' => $user['role'],
+            'role' => Auth::normalizeRole((string) $user['role']) ?? 'rrhh',
         ]);
 
         $repository->touchLastLogin((int) $user['id']);

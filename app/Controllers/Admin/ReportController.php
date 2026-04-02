@@ -23,7 +23,7 @@ final class ReportController extends Controller
 {
     public function attendance(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('reports.view');
 
         $report = $this->buildReport($request);
 
@@ -34,7 +34,7 @@ final class ReportController extends Controller
 
     public function export(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('reports.view');
 
         $format = strtolower((string) $request->input('format', 'xlsx'));
         $allowedFormats = ['csv', 'xls', 'xlsx'];

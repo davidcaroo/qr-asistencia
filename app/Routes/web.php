@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\Admin\DashboardController;
+use App\Controllers\Admin\AuditController;
 use App\Controllers\Admin\GroupController;
 use App\Controllers\Admin\EmployeeController;
 use App\Controllers\Admin\ReportController;
@@ -27,6 +28,7 @@ $router->get('/marcar', [AttendanceController::class, 'show']);
 $router->post('/marcar', [AttendanceController::class, 'store']);
 
 $router->get('/admin', [DashboardController::class, 'index']);
+$router->get('/admin/auditoria', [AuditController::class, 'index']);
 $router->get('/admin/grupos', [GroupController::class, 'index']);
 $router->get('/admin/grupos/nuevo', [GroupController::class, 'create']);
 $router->post('/admin/grupos', [GroupController::class, 'store']);

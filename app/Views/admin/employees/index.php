@@ -9,16 +9,18 @@ $groups = $groups ?? [];
                 <h2 class="h5 mb-0 font-weight-bold">Empleados</h2>
                 <p class="text-muted mb-0 small">Gestiona registros individuales o importa un archivo masivo.</p>
             </div>
-            <div class="d-flex flex-wrap mt-2 mt-md-0">
-                <a href="<?= htmlspecialchars(site_url('admin/empleados/importar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary btn-sm mr-2 mb-2 btn-icon-label">
-                    <i class="bi bi-upload mr-2"></i>
-                    <span>Importar</span>
-                </a>
-                <a href="<?= htmlspecialchars(site_url('admin/empleados/nuevo'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary btn-sm mb-2 btn-icon-label">
-                    <i class="bi bi-person-plus mr-2"></i>
-                    <span>Nuevo empleado</span>
-                </a>
-            </div>
+            <?php if (\App\Core\Auth::can('employees.manage')): ?>
+                <div class="d-flex flex-wrap mt-2 mt-md-0">
+                    <a href="<?= htmlspecialchars(site_url('admin/empleados/importar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary btn-sm mr-2 mb-2 btn-icon-label">
+                        <i class="bi bi-upload mr-2"></i>
+                        <span>Importar</span>
+                    </a>
+                    <a href="<?= htmlspecialchars(site_url('admin/empleados/nuevo'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary btn-sm mb-2 btn-icon-label">
+                        <i class="bi bi-person-plus mr-2"></i>
+                        <span>Nuevo empleado</span>
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
     <div class="card-body border-bottom">
@@ -47,20 +49,22 @@ $groups = $groups ?? [];
                 </select>
             </div>
         </div>
-        <div class="d-flex flex-wrap align-items-center justify-content-between bulk-actions-bar mt-2">
-            <div class="small text-muted">Marca uno o varios empleados para eliminarlos en lote.</div>
-            <form id="employeeBulkDeleteForm" method="post" action="<?= htmlspecialchars(site_url('admin/empleados/eliminar-masivo'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline-flex align-items-center" data-confirm-bulk-delete data-bulk-label="empleados" data-bulk-singular="empleado">
-                <input type="hidden" name="_csrf" value="<?= htmlspecialchars(
-                                                                \App\Core\Csrf::token(),
-                                                                ENT_QUOTES,
-                                                                'UTF-8'
-                                                            ) ?>">
-                <button type="submit" class="btn btn-danger btn-sm btn-icon-label">
-                    <i class="bi bi-trash mr-2"></i>
-                    <span>Eliminar seleccionados</span>
-                </button>
-            </form>
-        </div>
+        <?php if (\App\Core\Auth::can('employees.manage')): ?>
+            <div class="d-flex flex-wrap align-items-center justify-content-between bulk-actions-bar mt-2">
+                <div class="small text-muted">Marca uno o varios empleados para eliminarlos en lote.</div>
+                <form id="employeeBulkDeleteForm" method="post" action="<?= htmlspecialchars(site_url('admin/empleados/eliminar-masivo'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline-flex align-items-center" data-confirm-bulk-delete data-bulk-label="empleados" data-bulk-singular="empleado">
+                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars(
+                                                                    \App\Core\Csrf::token(),
+                                                                    ENT_QUOTES,
+                                                                    'UTF-8'
+                                                                ) ?>">
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon-label">
+                        <i class="bi bi-trash mr-2"></i>
+                        <span>Eliminar seleccionados</span>
+                    </button>
+                </form>
+            </div>
+        <?php endif; ?>
     </div>
     <div class="table-responsive px-3 pb-3">
         <table class="table table-hover mb-0" id="employeesTable">
@@ -115,15 +119,17 @@ $groups = $groups ?? [];
                                     <a href="<?= htmlspecialchars(site_url('admin/empleados/' . (int) $employee['id'] . '/ver'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline-secondary btn-icon-only mb-1 mr-1" aria-label="Ver detalle" title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="<?= htmlspecialchars(site_url('admin/empleados/' . (int) $employee['id'] . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline-primary btn-icon-only mb-1 mr-1" aria-label="Editar empleado" title="Editar empleado">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form method="post" action="<?= htmlspecialchars(site_url('admin/empleados/' . (int) $employee['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline mb-1" data-confirm-delete>
-                                        <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-only" aria-label="Eliminar empleado" title="Eliminar empleado">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
+                                    <?php if (\App\Core\Auth::can('employees.manage')): ?>
+                                        <a href="<?= htmlspecialchars(site_url('admin/empleados/' . (int) $employee['id'] . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline-primary btn-icon-only mb-1 mr-1" aria-label="Editar empleado" title="Editar empleado">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="post" action="<?= htmlspecialchars(site_url('admin/empleados/' . (int) $employee['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline mb-1" data-confirm-delete>
+                                            <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-only" aria-label="Eliminar empleado" title="Eliminar empleado">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

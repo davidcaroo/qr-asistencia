@@ -15,7 +15,7 @@ final class QrController extends Controller
 {
     public function index(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('qr.view');
 
         $this->view('admin/qr/live', [
             'pageTitle' => 'QR global rotativo',
@@ -24,7 +24,7 @@ final class QrController extends Controller
 
     public function current(Request $request): void
     {
-        Auth::requireAdmin();
+        Auth::requirePermission('qr.view');
 
         $service = new QrTokenService(
             (string) env('APP_KEY', 'qr-asistencia-secret'),

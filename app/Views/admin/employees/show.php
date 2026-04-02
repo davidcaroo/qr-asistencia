@@ -45,12 +45,14 @@ $dayLabels = [
                     <i class="bi bi-arrow-left mr-2"></i>
                     <span>Volver</span>
                 </a>
-                <div>
-                    <a href="<?= htmlspecialchars(site_url('admin/empleados/' . (int) ($employee['id'] ?? 0) . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary btn-sm mb-2 btn-icon-label">
-                        <i class="bi bi-pencil mr-2"></i>
-                        <span>Editar</span>
-                    </a>
-                </div>
+                <?php if (\App\Core\Auth::can('employees.manage')): ?>
+                    <div>
+                        <a href="<?= htmlspecialchars(site_url('admin/empleados/' . (int) ($employee['id'] ?? 0) . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary btn-sm mb-2 btn-icon-label">
+                            <i class="bi bi-pencil mr-2"></i>
+                            <span>Editar</span>
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
