@@ -51,6 +51,12 @@ if ($error = flash('error')) {
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Gestión</div>
             <li class="nav-item">
+                <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/grupos'), ENT_QUOTES, 'UTF-8') ?>">
+                    <i class="fas fa-fw fa-layer-group"></i>
+                    <span>Grupos</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Empleados</span>

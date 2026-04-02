@@ -276,6 +276,46 @@
     });
   }
 
+  function initGroupsTable() {
+    if (
+      typeof jQuery === "undefined" ||
+      typeof jQuery.fn.DataTable === "undefined"
+    ) {
+      return;
+    }
+
+    var table = jQuery("#groupsTable");
+
+    if (!table.length) {
+      return;
+    }
+
+    table.DataTable({
+      dom: "lrtip",
+      pageLength: 10,
+      lengthMenu: [10, 25, 50, 100],
+      order: [[0, "asc"]],
+      language: {
+        decimal: ".",
+        emptyTable: "No hay grupos registrados todavía.",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ grupos",
+        infoEmpty: "Mostrando 0 a 0 de 0 grupos",
+        infoFiltered: "(filtrado de _MAX_ grupos)",
+        lengthMenu: "Mostrar _MENU_ grupos",
+        loadingRecords: "Cargando...",
+        processing: "Procesando...",
+        search: "Buscar:",
+        zeroRecords: "No se encontraron resultados",
+        paginate: {
+          first: "Primero",
+          last: "Último",
+          next: "Siguiente",
+          previous: "Anterior",
+        },
+      },
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     showFlashMessages(window.APP_FLASH || []);
     bindLogoutConfirm();
@@ -285,5 +325,6 @@
     bindBulkSelectAll("schedule");
     initEmployeesTable();
     initAttendanceReportTable();
+    initGroupsTable();
   });
 })();

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\Admin\DashboardController;
+use App\Controllers\Admin\GroupController;
 use App\Controllers\Admin\EmployeeController;
 use App\Controllers\Admin\ReportController;
 use App\Controllers\Admin\QrController;
@@ -26,6 +27,12 @@ $router->get('/marcar', [AttendanceController::class, 'show']);
 $router->post('/marcar', [AttendanceController::class, 'store']);
 
 $router->get('/admin', [DashboardController::class, 'index']);
+$router->get('/admin/grupos', [GroupController::class, 'index']);
+$router->get('/admin/grupos/nuevo', [GroupController::class, 'create']);
+$router->post('/admin/grupos', [GroupController::class, 'store']);
+$router->get('/admin/grupos/{id}/editar', [GroupController::class, 'edit']);
+$router->post('/admin/grupos/{id}/actualizar', [GroupController::class, 'update']);
+$router->post('/admin/grupos/{id}/eliminar', [GroupController::class, 'destroy']);
 $router->get('/admin/empleados', [EmployeeController::class, 'index']);
 $router->get('/admin/empleados/nuevo', [EmployeeController::class, 'create']);
 $router->post('/admin/empleados', [EmployeeController::class, 'store']);

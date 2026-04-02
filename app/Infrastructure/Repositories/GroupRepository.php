@@ -21,10 +21,45 @@ final class GroupRepository
         return $this->pdo->query('SELECT * FROM employee_groups ORDER BY name ASC')->fetchAll();
     }
 
+    public function create(array $data): int
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO employee_groups (name, slug, description, active) VALUES (:name, :slug, :description, :active)'
+        );
+        $stmt->execute([
+            'name' => $data['name'],
+            'slug' => $data['slug'],
+            'description' => $data['description'],
+            'active' => $data['active'],
+        ]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
     public function findById(int $id): ?array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM employee_groups WHERE id = :id LIMIT 1');
         $stmt->execute(['id' => $id]);
+
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
+
+    public function findBySlug(string $slug): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM employee_groups WHERE slug = :slug LIMIT 1');
+        $stmt->execute(['slug' => $slug]);
+
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
+
+    public function findByName(string $name): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM employee_groups WHERE LOWER(name) = LOWER(:name) LIMIT 1');
+        $stmt->execute(['name' => $name]);
 
         $row = $stmt->fetch();
 
@@ -42,5 +77,27 @@ final class GroupRepository
         $row = $stmt->fetch();
 
         return $row ?: null;
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE employee_groups SET name = :name, slug = :slug, description = :description, active = :active WHERE id = :id'
+        );
+
+        return $stmt->execute([
+            'id' => $id,
+            'name' => $data['name'],
+            'slug' => $data['slug'],
+            'description' => $data['description'],
+            'active' => $data['active'],
+        ]);
+    }
+
+    public function delete(int $id): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM employee_groups WHERE id = :id');
+
+        return $stmt->execute(['id' => $id]);
     }
 }
