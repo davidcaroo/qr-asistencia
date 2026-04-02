@@ -1,0 +1,22 @@
+{
+  "name": "qr-asistencia/sistema",
+  "description": "Sistema de asistencia por QR con PHP, MySQL y SB Admin 2",
+  "type": "project",
+  "require": {
+    "php": "^8.1",
+    "ext-pdo": "*",
+    "chillerlan/php-qrcode": "^5.0",
+    "vlucas/phpdotenv": "^5.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    },
+    "files": [
+      "app/Helpers/functions.php"
+    ]
+  },
+  "scripts": {
+    "serve": "php -S localhost:8000 -t public"
+  }
+}

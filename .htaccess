@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /qr-asistencia/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+ErrorDocument 400 /qr-asistencia/index.php?error=400
+ErrorDocument 401 /qr-asistencia/index.php?error=401
+ErrorDocument 403 /qr-asistencia/index.php?error=403
+ErrorDocument 404 /qr-asistencia/index.php?error=404
+ErrorDocument 405 /qr-asistencia/index.php?error=405
+ErrorDocument 408 /qr-asistencia/index.php?error=408
+ErrorDocument 429 /qr-asistencia/index.php?error=429
+ErrorDocument 500 /qr-asistencia/index.php?error=500
+ErrorDocument 502 /qr-asistencia/index.php?error=502
+ErrorDocument 503 /qr-asistencia/index.php?error=503
+ErrorDocument 504 /qr-asistencia/index.php?error=504
+
+DirectoryIndex index.php index.html
