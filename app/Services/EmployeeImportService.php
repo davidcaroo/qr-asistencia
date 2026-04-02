@@ -90,6 +90,12 @@ final class EmployeeImportService
         if ($readerType === 'csv') {
             $reader = new Csv();
             $reader->setDelimiter($this->detectDelimiter($filePath));
+            $encoding = $this->detectEncoding($filePath);
+
+            if (method_exists($reader, 'setInputEncoding')) {
+                $reader->setInputEncoding($encoding);
+            }
+
             $spreadsheet = $reader->load($filePath);
         } elseif (in_array($readerType, ['xlsx', 'xls', 'xl'], true)) {
             try {
@@ -101,7 +107,9 @@ final class EmployeeImportService
             throw new RuntimeException('Formato no soportado. Use CSV, XLS o XLSX.');
         }
 
-        return $spreadsheet->getActiveSheet()->toArray(null, false, false, false);
+        $rows = $spreadsheet->getActiveSheet()->toArray(null, false, false, false);
+
+        return $this->normalizeRowsEncoding($rows);
     }
 
     private function detectDelimiter(string $filePath): string
@@ -119,6 +127,45 @@ final class EmployeeImportService
         $commas = substr_count($line, ',');
 
         return $semicolons > $commas ? ';' : ',';
+    }
+
+    private function detectEncoding(string $filePath): string
+    {
+        $handle = fopen($filePath, 'rb');
+
+        if ($handle === false) {
+            return 'UTF-8';
+        }
+
+        $sample = fread($handle, 4096) ?: '';
+        fclose($handle);
+
+        $encoding = mb_detect_encoding($sample, ['UTF-8', 'Windows-1252', 'ISO-8859-1'], true);
+
+        return $encoding !== false ? $encoding : 'UTF-8';
+    }
+
+    private function normalizeRowsEncoding(array $rows): array
+    {
+        return array_map(
+            fn(array $row): array => array_map([$this, 'normalizeCellEncoding'], $row),
+            $rows
+        );
+    }
+
+    private function normalizeCellEncoding(mixed $value): mixed
+    {
+        if (!is_string($value) || $value === '') {
+            return $value;
+        }
+
+        if (mb_check_encoding($value, 'UTF-8')) {
+            return $value;
+        }
+
+        $converted = @mb_convert_encoding($value, 'UTF-8', ['Windows-1252', 'ISO-8859-1', 'UTF-8']);
+
+        return $converted !== false ? $converted : $value;
     }
 
     private function normalizeHeaders(array $headers): array

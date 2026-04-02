@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\EmployeeController;
+use App\Controllers\Admin\ReportController;
 use App\Controllers\Admin\QrController;
 use App\Controllers\Admin\ScheduleController;
 use App\Controllers\AttendanceController;
@@ -46,5 +47,7 @@ $router->post('/admin/horarios/asignar', [ScheduleController::class, 'assignStor
 $router->post('/admin/horarios/asignaciones/{id}/eliminar', [ScheduleController::class, 'unassign']);
 $router->get('/admin/qr', [QrController::class, 'index']);
 $router->get('/api/qr/current', [QrController::class, 'current']);
+$router->get('/admin/reportes/asistencia', [ReportController::class, 'attendance']);
+$router->get('/admin/reportes/asistencia/exportar', [ReportController::class, 'export']);
 
 return $router;

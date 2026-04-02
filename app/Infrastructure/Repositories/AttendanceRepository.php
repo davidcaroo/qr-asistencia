@@ -6,6 +6,7 @@ namespace App\Infrastructure\Repositories;
 
 use App\Core\Database;
 use PDO;
+use DateTimeImmutable;
 
 final class AttendanceRepository
 {
@@ -122,5 +123,54 @@ final class AttendanceRepository
         $stmt->execute($params);
 
         return (int) $stmt->fetchColumn();
+    }
+
+    public function monthlyEmployeeSummary(DateTimeImmutable $startDate, DateTimeImmutable $endDate, ?int $employeeId = null, ?int $groupId = null): array
+    {
+        $sql = '
+            SELECT
+                e.id AS employee_id,
+                e.cedula,
+                e.full_name,
+                e.email,
+                g.name AS group_name,
+                COUNT(ar.id) AS total_records,
+                SUM(CASE WHEN ar.mark_type = "entry" THEN 1 ELSE 0 END) AS total_entries,
+                SUM(CASE WHEN ar.mark_type = "exit" THEN 1 ELSE 0 END) AS total_exits,
+                SUM(CASE WHEN ar.mark_type = "entry" AND ar.schedule_state = "late" THEN 1 ELSE 0 END) AS total_late_entries,
+                MIN(CASE WHEN ar.mark_type = "entry" THEN ar.marked_at END) AS first_entry_at,
+                MAX(CASE WHEN ar.mark_type = "exit" THEN ar.marked_at END) AS last_exit_at,
+                MAX(ar.marked_at) AS last_mark_at
+            FROM employees e
+            LEFT JOIN employee_groups g ON g.id = e.group_id
+            LEFT JOIN attendance_records ar ON ar.employee_id = e.id
+                AND ar.attendance_date BETWEEN :start_date AND :end_date
+            WHERE e.active = 1
+        ';
+
+        $params = [
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+        ];
+
+        if ($employeeId !== null) {
+            $sql .= ' AND e.id = :employee_id';
+            $params['employee_id'] = $employeeId;
+        }
+
+        if ($groupId !== null) {
+            $sql .= ' AND e.group_id = :group_id';
+            $params['group_id'] = $groupId;
+        }
+
+        $sql .= '
+            GROUP BY e.id, e.cedula, e.full_name, e.email, g.name
+            ORDER BY g.name ASC, e.full_name ASC
+        ';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll();
     }
 }

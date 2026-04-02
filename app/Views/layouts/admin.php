@@ -21,6 +21,9 @@ if ($error = flash('error')) {
 
     <title><?= htmlspecialchars($pageTitle ?? 'Panel', ENT_QUOTES, 'UTF-8') ?> | <?= htmlspecialchars(config('app', 'name'), ENT_QUOTES, 'UTF-8') ?></title>
 
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars(asset_url('img/favicon-qr-asistencia.png'), ENT_QUOTES, 'UTF-8') ?>">
+    <link rel="apple-touch-icon" href="<?= htmlspecialchars(asset_url('img/favicon-qr-asistencia.png'), ENT_QUOTES, 'UTF-8') ?>">
+
     <link href="<?= htmlspecialchars(asset_url('vendor/fontawesome-free/css/all.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?= htmlspecialchars(asset_url('vendor/datatables/dataTables.bootstrap4.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
@@ -63,6 +66,12 @@ if ($error = flash('error')) {
                 <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/qr'), ENT_QUOTES, 'UTF-8') ?>">
                     <i class="fas fa-fw fa-qrcode"></i>
                     <span>QR global</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/reportes/asistencia'), ENT_QUOTES, 'UTF-8') ?>">
+                    <i class="fas fa-fw fa-chart-line"></i>
+                    <span>Reportes</span>
                 </a>
             </li>
             <hr class="sidebar-divider d-none d-md-block">

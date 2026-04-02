@@ -14,6 +14,9 @@ $flashMessages = [];
 
     <title><?= htmlspecialchars($pageTitle ?? 'Error', ENT_QUOTES, 'UTF-8') ?> | <?= htmlspecialchars(config('app', 'name'), ENT_QUOTES, 'UTF-8') ?></title>
 
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars(asset_url('img/favicon-qr-asistencia.png'), ENT_QUOTES, 'UTF-8') ?>">
+    <link rel="apple-touch-icon" href="<?= htmlspecialchars(asset_url('img/favicon-qr-asistencia.png'), ENT_QUOTES, 'UTF-8') ?>">
+
     <link href="<?= htmlspecialchars(asset_url('vendor/fontawesome-free/css/all.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="<?= htmlspecialchars(asset_url('css/sb-admin-2.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
