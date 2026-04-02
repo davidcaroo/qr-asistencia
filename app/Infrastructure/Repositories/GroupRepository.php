@@ -30,4 +30,17 @@ final class GroupRepository
 
         return $row ?: null;
     }
+
+    public function findByNameOrSlug(string $value): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM employee_groups WHERE LOWER(name) = LOWER(:name_value) OR LOWER(slug) = LOWER(:slug_value) LIMIT 1');
+        $stmt->execute([
+            'name_value' => $value,
+            'slug_value' => $value,
+        ]);
+
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
 }

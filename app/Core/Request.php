@@ -6,9 +6,21 @@ namespace App\Core;
 
 final class Request
 {
+    private array $routeParams = [];
+
     public function method(): string
     {
         return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    }
+
+    public function setRouteParams(array $params): void
+    {
+        $this->routeParams = $params;
+    }
+
+    public function param(string $key, mixed $default = null): mixed
+    {
+        return $this->routeParams[$key] ?? $default;
     }
 
     public function uri(): string

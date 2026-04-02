@@ -26,6 +26,13 @@ $router->post('/marcar', [AttendanceController::class, 'store']);
 
 $router->get('/admin', [DashboardController::class, 'index']);
 $router->get('/admin/empleados', [EmployeeController::class, 'index']);
+$router->get('/admin/empleados/nuevo', [EmployeeController::class, 'create']);
+$router->post('/admin/empleados', [EmployeeController::class, 'store']);
+$router->get('/admin/empleados/{id}/editar', [EmployeeController::class, 'edit']);
+$router->post('/admin/empleados/{id}/actualizar', [EmployeeController::class, 'update']);
+$router->post('/admin/empleados/{id}/eliminar', [EmployeeController::class, 'destroy']);
+$router->get('/admin/empleados/importar', [EmployeeController::class, 'importForm']);
+$router->post('/admin/empleados/importar', [EmployeeController::class, 'importStore']);
 $router->get('/admin/horarios', [ScheduleController::class, 'index']);
 $router->get('/admin/qr', [QrController::class, 'index']);
 $router->get('/api/qr/current', [QrController::class, 'current']);
