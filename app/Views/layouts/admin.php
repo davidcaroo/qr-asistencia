@@ -22,6 +22,7 @@ if ($error = flash('error')) {
     <title><?= htmlspecialchars($pageTitle ?? 'Panel', ENT_QUOTES, 'UTF-8') ?> | <?= htmlspecialchars(config('app', 'name'), ENT_QUOTES, 'UTF-8') ?></title>
 
     <link href="<?= htmlspecialchars(asset_url('vendor/fontawesome-free/css/all.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?= htmlspecialchars(asset_url('vendor/datatables/dataTables.bootstrap4.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="<?= htmlspecialchars(asset_url('css/sb-admin-2.min.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">

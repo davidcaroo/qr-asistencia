@@ -34,7 +34,10 @@
                                     <h2 class="attendance-heading mt-3 mb-2">Ingresa tu cédula</h2>
                                     <p class="attendance-subtitle mb-0">Usa el número con el que estás registrado. No necesitas contraseña para marcar.</p>
                                 </div>
-                                <a class="btn btn-link text-muted p-0 attendance-admin-link" href="<?= htmlspecialchars(site_url('login'), ENT_QUOTES, 'UTF-8') ?>">Panel admin</a>
+                                <a class="btn btn-link text-muted p-0 attendance-admin-link btn-icon-label" href="<?= htmlspecialchars(site_url('login'), ENT_QUOTES, 'UTF-8') ?>">
+                                    <i class="bi bi-shield-lock mr-2"></i>
+                                    <span>Panel admin</span>
+                                </a>
                             </div>
 
                             <?php if ($success = flash('success')): ?>
@@ -70,8 +73,8 @@
                                     <small class="form-text text-muted mt-2">Escribe tu número de cédula sin puntos ni espacios.</small>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary btn-lg btn-block btn-icon-split attendance-submit shadow-sm">
-                                    <span class="icon text-white-50"><i class="fas fa-paper-plane"></i></span>
+                                <button type="submit" class="btn btn-primary btn-lg btn-block btn-icon-split attendance-submit shadow-sm btn-icon-label">
+                                    <span class="icon text-white-50"><i class="bi bi-check2-circle"></i></span>
                                     <span class="text">Registrar asistencia</span>
                                 </button>
                             </form>
@@ -79,7 +82,10 @@
                             <div class="attendance-note mt-4 pt-4 border-top">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap">
                                     <div class="small text-muted mb-2 mb-md-0">Si ya registraste tu entrada, el siguiente movimiento será salida.</div>
-                                    <a class="btn btn-outline-primary btn-sm" href="<?= htmlspecialchars(site_url('login'), ENT_QUOTES, 'UTF-8') ?>">Panel administrativo</a>
+                                    <a class="btn btn-outline-primary btn-sm btn-icon-label" href="<?= htmlspecialchars(site_url('login'), ENT_QUOTES, 'UTF-8') ?>">
+                                        <i class="bi bi-box-arrow-in-right mr-2"></i>
+                                        <span>Panel administrativo</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>

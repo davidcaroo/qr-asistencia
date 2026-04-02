@@ -21,7 +21,10 @@
                                     <div class="form-group">
                                         <input type="password" name="password" class="form-control form-control-user" placeholder="Contraseña" required>
                                     </div>
-                                    <button type="submit" class="btn btn-primary btn-user btn-block">Entrar</button>
+                                    <button type="submit" class="btn btn-primary btn-user btn-block btn-icon-label">
+                                        <i class="bi bi-box-arrow-in-right mr-2"></i>
+                                        <span>Entrar</span>
+                                    </button>
                                 </form>
 
                                 <hr>

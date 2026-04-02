@@ -44,6 +44,18 @@ final class EmployeeRepository
         return $row ?: null;
     }
 
+    public function findDetailedById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT e.*, g.name AS group_name, g.slug AS group_slug FROM employees e LEFT JOIN employee_groups g ON g.id = e.group_id WHERE e.id = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
+
     public function all(int $limit = 50, string $search = ''): array
     {
         $sql = 'SELECT e.*, g.name AS group_name FROM employees e LEFT JOIN employee_groups g ON g.id = e.group_id';
@@ -107,6 +119,29 @@ final class EmployeeRepository
         $stmt = $this->pdo->prepare('DELETE FROM employees WHERE id = :id');
 
         return $stmt->execute(['id' => $id]);
+    }
+
+    public function deleteMany(array $ids): int
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+
+        if ($ids === []) {
+            return 0;
+        }
+
+        $placeholders = [];
+        $params = [];
+
+        foreach ($ids as $index => $id) {
+            $placeholder = ':id' . $index;
+            $placeholders[] = $placeholder;
+            $params[$placeholder] = $id;
+        }
+
+        $stmt = $this->pdo->prepare('DELETE FROM employees WHERE id IN (' . implode(', ', $placeholders) . ')');
+        $stmt->execute($params);
+
+        return $stmt->rowCount();
     }
 
     public function findByCedulaAnyState(string $cedula): ?array

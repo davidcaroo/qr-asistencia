@@ -7,10 +7,14 @@ namespace App\Controllers\Admin;
 use App\Core\Controller;
 use App\Core\Auth;
 use App\Core\Request;
+use App\Infrastructure\Repositories\GroupScheduleAssignmentRepository;
 use App\Infrastructure\Repositories\EmployeeRepository;
 use App\Infrastructure\Repositories\GroupRepository;
+use App\Services\ScheduleService;
+use App\Infrastructure\Repositories\ScheduleRepository;
 use App\Services\EmployeeImportService;
 use App\Core\Response;
+use DateTimeImmutable;
 
 final class EmployeeController extends Controller
 {
@@ -84,6 +88,35 @@ final class EmployeeController extends Controller
         $this->renderForm('Editar empleado', site_url('admin/empleados/' . $id . '/actualizar'), $employee);
     }
 
+    public function show(Request $request): void
+    {
+        Auth::requireAdmin();
+
+        $id = (int) $request->param('id', 0);
+        $employeeRepository = new EmployeeRepository();
+        $employee = $employeeRepository->findDetailedById($id);
+
+        if ($employee === null) {
+            Response::error(404, [
+                'details' => 'No se encontró el empleado solicitado.',
+                'actionLabel' => 'Volver a empleados',
+                'actionUrl' => site_url('admin/empleados'),
+            ]);
+        }
+
+        $groupId = $employee['group_id'] !== null ? (int) $employee['group_id'] : null;
+        $scheduleService = new ScheduleService(new ScheduleRepository());
+        $currentSchedule = $scheduleService->resolveForEmployeeGroup($groupId, new DateTimeImmutable('now'));
+        $assignments = $groupId !== null ? (new GroupScheduleAssignmentRepository())->allByGroupId($groupId) : [];
+
+        $this->view('admin/employees/show', [
+            'pageTitle' => 'Detalle de empleado',
+            'employee' => $employee,
+            'currentSchedule' => $currentSchedule,
+            'assignments' => $assignments,
+        ]);
+    }
+
     public function update(Request $request): void
     {
         Auth::requireAdmin();
@@ -148,6 +181,27 @@ final class EmployeeController extends Controller
 
         $repository->delete($id);
         flash('success', 'Empleado eliminado correctamente.');
+        Response::redirect('/admin/empleados');
+    }
+
+    public function destroyMany(Request $request): void
+    {
+        Auth::requireAdmin();
+
+        if (!\App\Core\Csrf::validate((string) $request->input('_csrf', ''))) {
+            flash('error', 'Token de seguridad inválido.');
+            Response::redirect('/admin/empleados');
+        }
+
+        $ids = $this->normalizeSelectedIds($request->input('selected_ids', []));
+
+        if ($ids === []) {
+            flash('error', 'Debes seleccionar al menos un empleado.');
+            Response::redirect('/admin/empleados');
+        }
+
+        $deleted = (new EmployeeRepository())->deleteMany($ids);
+        flash('success', 'Se eliminaron ' . $deleted . ' empleado' . ($deleted === 1 ? '' : 's') . '.');
         Response::redirect('/admin/empleados');
     }
 
@@ -264,6 +318,24 @@ final class EmployeeController extends Controller
         }
 
         return $errors;
+    }
+
+    private function normalizeSelectedIds(mixed $selectedIds): array
+    {
+        if (!is_array($selectedIds)) {
+            $selectedIds = $selectedIds === null || $selectedIds === '' ? [] : [$selectedIds];
+        }
+
+        $normalized = [];
+
+        foreach ($selectedIds as $selectedId) {
+            $id = (int) $selectedId;
+            if ($id > 0) {
+                $normalized[$id] = $id;
+            }
+        }
+
+        return array_values($normalized);
     }
 
     private function generatePinHash(): string

@@ -66,6 +66,98 @@
     });
   }
 
+  function bindBulkDeleteConfirm() {
+    document
+      .querySelectorAll("form[data-confirm-bulk-delete]")
+      .forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          var label = form.getAttribute("data-bulk-label") || "registros";
+          var singular = form.getAttribute("data-bulk-singular") || label;
+          var selectedCount = document.querySelectorAll(
+            'input[type="checkbox"][name="selected_ids[]"]:checked',
+          ).length;
+
+          if (selectedCount === 0) {
+            if (typeof Swal !== "undefined") {
+              Swal.fire({
+                icon: "info",
+                title: "Sin selección",
+                text: "Marca al menos un " + singular + " para continuar.",
+                confirmButtonText: "Entendido",
+              });
+            }
+            return;
+          }
+
+          if (typeof Swal === "undefined") {
+            form.submit();
+            return;
+          }
+
+          Swal.fire({
+            title: "Eliminar " + selectedCount + " " + label,
+            text: "Esta acción no se puede deshacer.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+          }).then(function (result) {
+            if (result.isConfirmed) {
+              form.submit();
+            }
+          });
+        });
+      });
+  }
+
+  function bindBulkSelectAll(prefix) {
+    var master = document.getElementById(prefix + "SelectAll");
+    if (!master) {
+      return;
+    }
+
+    var checkboxes = function () {
+      return Array.prototype.slice.call(
+        document.querySelectorAll(
+          'input[type="checkbox"][data-bulk-item="' + prefix + '"]',
+        ),
+      );
+    };
+
+    function syncMasterState() {
+      var items = checkboxes();
+      var checkedItems = items.filter(function (item) {
+        return item.checked;
+      });
+
+      master.checked = items.length > 0 && checkedItems.length === items.length;
+      master.indeterminate =
+        checkedItems.length > 0 && checkedItems.length < items.length;
+    }
+
+    master.addEventListener("change", function () {
+      checkboxes().forEach(function (item) {
+        item.checked = master.checked;
+      });
+      syncMasterState();
+    });
+
+    document.addEventListener("change", function (event) {
+      if (
+        event.target &&
+        event.target.matches(
+          'input[type="checkbox"][data-bulk-item="' + prefix + '"]',
+        )
+      ) {
+        syncMasterState();
+      }
+    });
+
+    syncMasterState();
+  }
+
   function initEmployeesTable() {
     if (
       typeof jQuery === "undefined" ||
@@ -148,6 +240,9 @@
     showFlashMessages(window.APP_FLASH || []);
     bindLogoutConfirm();
     bindDeleteConfirm();
+    bindBulkDeleteConfirm();
+    bindBulkSelectAll("employee");
+    bindBulkSelectAll("schedule");
     initEmployeesTable();
   });
 })();

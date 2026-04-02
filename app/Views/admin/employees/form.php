@@ -14,7 +14,10 @@ $title = $formTitle ?? ($isEdit ? 'Editar empleado' : 'Nuevo empleado');
             <h2 class="h5 mb-0 font-weight-bold"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></h2>
             <p class="text-muted mb-0 small">La marcación usa cédula como identificador principal.</p>
         </div>
-        <a href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary btn-sm mt-2 mt-md-0">Volver</a>
+        <a href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary btn-sm mt-2 mt-md-0 btn-icon-label">
+            <i class="bi bi-arrow-left mr-2"></i>
+            <span>Volver</span>
+        </a>
     </div>
     <div class="card-body">
         <?php if (!empty($errors)): ?>
@@ -66,8 +69,14 @@ $title = $formTitle ?? ($isEdit ? 'Editar empleado' : 'Nuevo empleado');
             </div>
 
             <div class="col-12 d-flex flex-wrap justify-content-end mt-2">
-                <a href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-light mr-2 mb-2">Cancelar</a>
-                <button type="submit" class="btn btn-primary mb-2"><?= $isEdit ? 'Guardar cambios' : 'Crear empleado' ?></button>
+                <a href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-light mr-2 mb-2 btn-icon-label">
+                    <i class="bi bi-x-circle mr-2"></i>
+                    <span>Cancelar</span>
+                </a>
+                <button type="submit" class="btn btn-primary mb-2 btn-icon-label">
+                    <i class="bi bi-check2-circle mr-2"></i>
+                    <span><?= $isEdit ? 'Guardar cambios' : 'Crear empleado' ?></span>
+                </button>
             </div>
         </form>
     </div>

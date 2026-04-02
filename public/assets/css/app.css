@@ -243,6 +243,39 @@ body {
     min-height: 3.6rem;
 }
 
+.btn-icon-only {
+    width: 2.35rem;
+    height: 2.35rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.btn-icon-only i,
+.btn-icon-label i {
+    line-height: 1;
+}
+
+.btn-icon-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-actions {
+    min-width: 9rem;
+}
+
+.bulk-select-column {
+    width: 3.25rem;
+}
+
+.bulk-actions-bar {
+    gap: 0.75rem;
+}
+
 .attendance-submit .icon {
     width: 3.25rem;
 }

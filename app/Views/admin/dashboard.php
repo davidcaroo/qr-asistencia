@@ -25,7 +25,10 @@
                     <div class="h4 text-white mb-1">Rotativo cada 30s</div>
                     <div class="text-white-50">Abre el visor en tiempo real.</div>
                 </div>
-                <a href="<?= htmlspecialchars(site_url('admin/qr'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-light btn-sm align-self-start mt-3">Ver QR</a>
+                <a href="<?= htmlspecialchars(site_url('admin/qr'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-light btn-sm align-self-start mt-3 btn-icon-label">
+                    <i class="bi bi-qr-code-scan mr-2"></i>
+                    <span>Ver QR</span>
+                </a>
             </div>
         </div>
     </div>

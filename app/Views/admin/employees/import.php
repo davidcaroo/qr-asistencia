@@ -9,7 +9,10 @@
                     <h2 class="h5 mb-0 font-weight-bold">Importar empleados</h2>
                     <p class="text-muted mb-0 small">Carga masiva desde CSV, XLS o XLSX.</p>
                 </div>
-                <a href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary btn-sm mt-2 mt-md-0">Volver</a>
+                <a href="<?= htmlspecialchars(site_url('admin/empleados'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary btn-sm mt-2 mt-md-0 btn-icon-label">
+                    <i class="bi bi-arrow-left mr-2"></i>
+                    <span>Volver</span>
+                </a>
             </div>
             <div class="card-body">
                 <form method="post" action="<?= htmlspecialchars(site_url('admin/empleados/importar'), ENT_QUOTES, 'UTF-8') ?>" enctype="multipart/form-data">
@@ -18,7 +21,10 @@
                         <label for="file">Archivo</label>
                         <input type="file" class="form-control-file" id="file" name="file" accept=".csv,.xls,.xlsx" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Importar ahora</button>
+                    <button type="submit" class="btn btn-primary btn-icon-label">
+                        <i class="bi bi-file-earmark-arrow-up mr-2"></i>
+                        <span>Importar ahora</span>
+                    </button>
                 </form>
             </div>
         </div>
