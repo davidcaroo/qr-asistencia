@@ -18,7 +18,7 @@ final class AttendanceRepository
 
     public function recentForEmployee(int $employeeId, int $minutes): ?array
     {
-                $cutoff = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->modify('-' . $minutes . ' minutes');
+        $cutoff = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->modify('-' . $minutes . ' minutes');
         $stmt = $this->pdo->prepare('
             SELECT *
             FROM attendance_records
@@ -28,7 +28,7 @@ final class AttendanceRepository
             LIMIT 1
         ');
         $stmt->bindValue(':employee_id', $employeeId, PDO::PARAM_INT);
-                $stmt->bindValue(':cutoff', $cutoff->format('Y-m-d H:i:s'));
+        $stmt->bindValue(':cutoff', $cutoff->format('Y-m-d H:i:s'));
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -95,6 +95,32 @@ final class AttendanceRepository
 
     public function countToday(): int
     {
-        return (int) $this->pdo->query('SELECT COUNT(*) FROM attendance_records WHERE attendance_date = UTC_DATE()')->fetchColumn();
+        return $this->countTodayBy('');
+    }
+
+    public function countTodayEntries(): int
+    {
+        return $this->countTodayBy(' AND mark_type = :mark_type', ['mark_type' => 'entry']);
+    }
+
+    public function countTodayExits(): int
+    {
+        return $this->countTodayBy(' AND mark_type = :mark_type', ['mark_type' => 'exit']);
+    }
+
+    public function countTodayLateEntries(): int
+    {
+        return $this->countTodayBy(
+            ' AND mark_type = :mark_type AND schedule_state = :schedule_state',
+            ['mark_type' => 'entry', 'schedule_state' => 'late']
+        );
+    }
+
+    private function countTodayBy(string $whereSql, array $params = []): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM attendance_records WHERE attendance_date = UTC_DATE()' . $whereSql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn();
     }
 }

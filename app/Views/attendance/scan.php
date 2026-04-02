@@ -15,6 +15,7 @@
                                 class="qr-frame attendance-qr-frame mx-auto mb-3"
                                 id="attendanceQrFrame"
                                 data-current-url="<?= htmlspecialchars((string) ($currentQrUrl ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                data-current-token="<?= htmlspecialchars((string) ($currentQrToken ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                                 data-current-expires-at="<?= htmlspecialchars((string) ($currentQrExpiresAt ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 <div id="attendanceQrCanvas"></div>
                             </div>

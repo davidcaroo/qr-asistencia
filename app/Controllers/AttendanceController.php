@@ -27,6 +27,16 @@ final class AttendanceController extends Controller
             site_url('')
         );
         $payload = $qrService->issueToken(new DateTimeImmutable('now'));
+        $qrSessionRepository = new QrSessionRepository();
+
+        if ($qrSessionRepository->findValidByTokenHash($payload['hash'], new DateTimeImmutable('now')) === null) {
+            $qrSessionRepository->create([
+                'token_hash' => $payload['hash'],
+                'window_start' => $payload['window_start']->format('Y-m-d H:i:s'),
+                'window_end' => $payload['window_end']->format('Y-m-d H:i:s'),
+                'expires_at' => $payload['expires_at']->format('Y-m-d H:i:s'),
+            ]);
+        }
 
         $this->view('attendance/scan', [
             'pageTitle' => 'Registrar asistencia',

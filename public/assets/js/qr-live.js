@@ -18,9 +18,15 @@
   const publicCurrentUrl = publicRoot
     ? publicRoot.dataset.currentUrl || ""
     : "";
+  const publicCurrentToken = publicRoot
+    ? publicRoot.dataset.currentToken || ""
+    : "";
   const publicCurrentExpiresAt = publicRoot
     ? publicRoot.dataset.currentExpiresAt || ""
     : "";
+  const publicTokenInput = document.querySelector(
+    '.attendance-form input[name="token"]',
+  );
   let countdownTimer = null;
 
   function clearQr() {
@@ -41,6 +47,14 @@
     if (qrUrl) {
       qrUrl.textContent = url;
     }
+  }
+
+  function syncPublicToken(token) {
+    if (!publicTokenInput || !token) {
+      return;
+    }
+
+    publicTokenInput.value = token;
   }
 
   function startCountdown(target) {
@@ -76,6 +90,7 @@
       }
 
       renderQr(payload.url);
+      syncPublicToken(payload.token);
       const expiresAt = new Date(payload.expires_at).getTime();
       startCountdown(expiresAt);
     } catch (error) {
@@ -87,6 +102,7 @@
 
   if (publicRoot && publicCurrentUrl) {
     renderQr(publicCurrentUrl);
+    syncPublicToken(publicCurrentToken);
 
     const expiresAt = publicCurrentExpiresAt
       ? new Date(publicCurrentExpiresAt).getTime()

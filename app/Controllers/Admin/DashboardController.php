@@ -23,6 +23,9 @@ final class DashboardController extends Controller
             'pageTitle' => 'Panel administrativo',
             'totalEmployees' => count($employeeRepository->all(1000)),
             'todayAttendances' => $attendanceRepository->countToday(),
+            'todayEntries' => $attendanceRepository->countTodayEntries(),
+            'todayExits' => $attendanceRepository->countTodayExits(),
+            'todayLateEntries' => $attendanceRepository->countTodayLateEntries(),
         ]);
     }
 }
