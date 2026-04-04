@@ -30,7 +30,7 @@ if ($error = flash('error')) {
     <link href="<?= htmlspecialchars(asset_url('assets/css/app.css'), ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
 </head>
 
-<body class="bg-gradient-primary attendance-page">
+<body class="auth-page">
     <?= $content ?>
 
     <script src="<?= htmlspecialchars(asset_url('vendor/jquery/jquery.min.js'), ENT_QUOTES, 'UTF-8') ?>"></script>

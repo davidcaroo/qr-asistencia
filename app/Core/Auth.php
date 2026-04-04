@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Infrastructure\Repositories\AdminUserRepository;
+use App\Infrastructure\Repositories\RoleRepository;
 
 final class Auth
 {
@@ -34,7 +35,8 @@ final class Auth
             return null;
         }
 
-        $freshAdmin['role'] = self::normalizeRole((string) ($freshAdmin['role'] ?? ''));
+        $roleCandidate = (string) ($freshAdmin['role_slug'] ?? $freshAdmin['role'] ?? '');
+        $freshAdmin['role'] = self::normalizeRole($roleCandidate);
         Session::set('admin_user', [
             'id' => (int) $freshAdmin['id'],
             'name' => $freshAdmin['name'],
@@ -80,7 +82,7 @@ final class Auth
         }
 
         if ($role === 'admin') {
-            return 'superadmin';
+            return 'rrhh';
         }
 
         return $role;
@@ -111,12 +113,22 @@ final class Auth
             return true;
         }
 
-        $role = self::role();
-        if ($role === null) {
+        $admin = self::admin();
+        if ($admin === null) {
             return false;
         }
 
-        $permissions = self::permissionsForRole($role);
+        $roleRepository = new RoleRepository();
+        $permissions = $roleRepository->rolePermissionsForAdmin((int) $admin['id']);
+
+        if ($permissions === []) {
+            $role = self::role();
+            if ($role === null) {
+                return false;
+            }
+
+            $permissions = self::permissionsForRole($role);
+        }
 
         return in_array($permission, $permissions, true);
     }
@@ -138,6 +150,17 @@ final class Auth
     {
         $role = self::normalizeRole($role) ?? '';
 
+        if ($role !== '') {
+            $roleRepository = new RoleRepository();
+            $roleRow = $roleRepository->findBySlug($role);
+
+            if ($roleRow !== null) {
+                $permissions = $roleRepository->permissionsForRole((int) $roleRow['id']);
+
+                return array_map(static fn(array $row): string => (string) $row['slug'], $permissions);
+            }
+        }
+
         if ($role === 'superadmin') {
             return [
                 'dashboard.view',
@@ -148,6 +171,8 @@ final class Auth
                 'reports.view',
                 'qr.view',
                 'audit.view',
+                'roles.manage',
+                'users.manage',
             ];
         }
 

@@ -48,7 +48,7 @@ final class AuthController extends Controller
             'id' => (int) $user['id'],
             'name' => $user['name'],
             'email' => $user['email'],
-            'role' => Auth::normalizeRole((string) $user['role']) ?? 'rrhh',
+            'role' => Auth::normalizeRole((string) ($user['role_slug'] ?? $user['role'])) ?? 'rrhh',
         ]);
 
         $repository->touchLastLogin((int) $user['id']);

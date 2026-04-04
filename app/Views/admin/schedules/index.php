@@ -13,6 +13,7 @@ $days = [
 $scheduleCount = (int) ($scheduleCount ?? 0);
 $assignmentCount = (int) ($assignmentCount ?? 0);
 $groupCount = (int) ($groupCount ?? 0);
+$canManageSchedules = \App\Core\Auth::can('schedules.manage');
 ?>
 
 <div class="row">
@@ -24,10 +25,12 @@ $groupCount = (int) ($groupCount ?? 0);
                         <h2 class="h5 mb-1 font-weight-bold">Horarios</h2>
                         <p class="text-muted mb-0 small">Plantillas maestras de asistencia y sus reglas por grupo.</p>
                     </div>
-                    <a href="<?= htmlspecialchars(site_url('admin/horarios/nuevo'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary btn-sm btn-icon-label mb-3">
-                        <i class="bi bi-plus-circle mr-2"></i>
-                        <span>Nuevo horario</span>
-                    </a>
+                    <?php if ($canManageSchedules): ?>
+                        <a href="<?= htmlspecialchars(site_url('admin/horarios/nuevo'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary btn-sm btn-icon-label mb-3">
+                            <i class="bi bi-plus-circle mr-2"></i>
+                            <span>Nuevo horario</span>
+                        </a>
+                    <?php endif; ?>
                 </div>
 
                 <div class="row no-gutters mb-3">
@@ -51,16 +54,18 @@ $groupCount = (int) ($groupCount ?? 0);
                     </div>
                 </div>
 
-                <div class="d-flex flex-wrap align-items-center justify-content-between bulk-actions-bar border-top pt-3 mb-4">
-                    <div class="small text-muted">Selecciona varios horarios para borrarlos de una vez.</div>
-                    <form id="scheduleBulkDeleteForm" method="post" action="<?= htmlspecialchars(site_url('admin/horarios/eliminar-masivo'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline-flex align-items-center" data-confirm-bulk-delete data-bulk-label="horarios" data-bulk-singular="horario">
-                        <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
-                        <button type="submit" class="btn btn-danger btn-sm btn-icon-label">
-                            <i class="bi bi-trash mr-2"></i>
-                            <span>Eliminar seleccionados</span>
-                        </button>
-                    </form>
-                </div>
+                <?php if ($canManageSchedules): ?>
+                    <div class="d-flex flex-wrap align-items-center justify-content-between bulk-actions-bar border-top pt-3 mb-4">
+                        <div class="small text-muted">Selecciona varios horarios para borrarlos de una vez.</div>
+                        <form id="scheduleBulkDeleteForm" method="post" action="<?= htmlspecialchars(site_url('admin/horarios/eliminar-masivo'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline-flex align-items-center" data-confirm-bulk-delete data-bulk-label="horarios" data-bulk-singular="horario">
+                            <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
+                            <button type="submit" class="btn btn-danger btn-sm btn-icon-label">
+                                <i class="bi bi-trash mr-2"></i>
+                                <span>Eliminar seleccionados</span>
+                            </button>
+                        </form>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <div class="table-responsive px-3 pb-3 pt-1">
@@ -68,10 +73,12 @@ $groupCount = (int) ($groupCount ?? 0);
                     <thead class="thead-light">
                         <tr>
                             <th class="bulk-select-column text-center">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="scheduleSelectAll">
-                                    <label class="custom-control-label" for="scheduleSelectAll"></label>
-                                </div>
+                                <?php if ($canManageSchedules): ?>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="scheduleSelectAll">
+                                        <label class="custom-control-label" for="scheduleSelectAll"></label>
+                                    </div>
+                                <?php endif; ?>
                             </th>
                             <th>Nombre</th>
                             <th>Inicio</th>
@@ -90,17 +97,19 @@ $groupCount = (int) ($groupCount ?? 0);
                             <?php foreach ($schedules as $schedule): ?>
                                 <tr>
                                     <td class="text-center align-middle">
-                                        <div class="custom-control custom-checkbox">
-                                            <input
-                                                type="checkbox"
-                                                class="custom-control-input bulk-row-checkbox"
-                                                id="scheduleSelect<?= (int) $schedule['id'] ?>"
-                                                name="selected_ids[]"
-                                                value="<?= (int) $schedule['id'] ?>"
-                                                form="scheduleBulkDeleteForm"
-                                                data-bulk-item="schedule">
-                                            <label class="custom-control-label" for="scheduleSelect<?= (int) $schedule['id'] ?>"></label>
-                                        </div>
+                                        <?php if ($canManageSchedules): ?>
+                                            <div class="custom-control custom-checkbox">
+                                                <input
+                                                    type="checkbox"
+                                                    class="custom-control-input bulk-row-checkbox"
+                                                    id="scheduleSelect<?= (int) $schedule['id'] ?>"
+                                                    name="selected_ids[]"
+                                                    value="<?= (int) $schedule['id'] ?>"
+                                                    form="scheduleBulkDeleteForm"
+                                                    data-bulk-item="schedule">
+                                                <label class="custom-control-label" for="scheduleSelect<?= (int) $schedule['id'] ?>"></label>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                     <td><?= htmlspecialchars($schedule['name'], ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars($schedule['start_time'], ENT_QUOTES, 'UTF-8') ?></td>
@@ -112,17 +121,21 @@ $groupCount = (int) ($groupCount ?? 0);
                                         </span>
                                     </td>
                                     <td class="text-right table-actions pr-4 text-nowrap">
-                                        <div class="d-inline-flex align-items-center justify-content-end flex-wrap">
-                                            <a href="<?= htmlspecialchars(site_url('admin/horarios/' . (int) $schedule['id'] . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline-primary btn-icon-only mb-1 mr-1" aria-label="Editar horario" title="Editar horario">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <form method="post" action="<?= htmlspecialchars(site_url('admin/horarios/' . (int) $schedule['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline mb-1" data-confirm-delete>
-                                                <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-only" aria-label="Eliminar horario" title="Eliminar horario">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
+                                        <?php if ($canManageSchedules): ?>
+                                            <div class="d-inline-flex align-items-center justify-content-end flex-wrap">
+                                                <a href="<?= htmlspecialchars(site_url('admin/horarios/' . (int) $schedule['id'] . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline-primary btn-icon-only mb-1 mr-1" aria-label="Editar horario" title="Editar horario">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form method="post" action="<?= htmlspecialchars(site_url('admin/horarios/' . (int) $schedule['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline mb-1" data-confirm-delete>
+                                                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-only" aria-label="Eliminar horario" title="Eliminar horario">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -140,73 +153,77 @@ $groupCount = (int) ($groupCount ?? 0);
                 <p class="text-muted mb-0 small">Una sola plantilla puede aplicarse a varios días del mismo grupo.</p>
             </div>
             <div class="card-body pt-3">
-                <form method="post" action="<?= htmlspecialchars(site_url('admin/horarios/asignar'), ENT_QUOTES, 'UTF-8') ?>">
-                    <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
+                <?php if ($canManageSchedules): ?>
+                    <form method="post" action="<?= htmlspecialchars(site_url('admin/horarios/asignar'), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
 
-                    <div class="form-group mb-3">
-                        <label for="schedule_id">Horario</label>
-                        <select id="schedule_id" name="schedule_id" class="form-control" required>
-                            <option value="">Selecciona...</option>
-                            <?php foreach ($scheduleOptions ?? [] as $schedule): ?>
-                                <option value="<?= (int) $schedule['id'] ?>"><?= htmlspecialchars($schedule['name'], ENT_QUOTES, 'UTF-8') ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="group_id">Grupo</label>
-                        <select id="group_id" name="group_id" class="form-control" required>
-                            <option value="">Selecciona...</option>
-                            <?php foreach ($groups ?? [] as $group): ?>
-                                <option value="<?= (int) $group['id'] ?>"><?= htmlspecialchars($group['name'], ENT_QUOTES, 'UTF-8') ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="day_of_week">Días aplicables</label>
-                        <select id="day_of_week" name="day_of_week[]" class="form-control" multiple size="7">
-                            <?php foreach ($days as $value => $label): ?>
-                                <?php if ($value === ''): ?>
-                                    <?php continue; ?>
-                                <?php endif; ?>
-                                <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <small class="form-text text-muted">Mantén presionada la tecla Ctrl en Windows para seleccionar varios días.</small>
-                        <div class="btn-group btn-group-sm mt-2 flex-wrap" role="group" aria-label="Presets de días">
-                            <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="weekday">Lun-Vie</button>
-                            <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="saturday">Sábado</button>
-                            <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="weekend">Sáb-Dom</button>
-                            <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="all">Todos</button>
-                            <button type="button" class="btn btn-outline-light mb-1" data-day-preset="clear">Limpiar</button>
+                        <div class="form-group mb-3">
+                            <label for="schedule_id">Horario</label>
+                            <select id="schedule_id" name="schedule_id" class="form-control" required>
+                                <option value="">Selecciona...</option>
+                                <?php foreach ($scheduleOptions ?? [] as $schedule): ?>
+                                    <option value="<?= (int) $schedule['id'] ?>"><?= htmlspecialchars($schedule['name'], ENT_QUOTES, 'UTF-8') ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-6 form-group mb-3">
-                            <label for="valid_from">Válido desde</label>
-                            <input type="date" id="valid_from" name="valid_from" class="form-control">
+                        <div class="form-group mb-3">
+                            <label for="group_id">Grupo</label>
+                            <select id="group_id" name="group_id" class="form-control" required>
+                                <option value="">Selecciona...</option>
+                                <?php foreach ($groups ?? [] as $group): ?>
+                                    <option value="<?= (int) $group['id'] ?>"><?= htmlspecialchars($group['name'], ENT_QUOTES, 'UTF-8') ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                        <div class="col-6 form-group mb-3">
-                            <label for="valid_to">Válido hasta</label>
-                            <input type="date" id="valid_to" name="valid_to" class="form-control">
+
+                        <div class="form-group mb-3">
+                            <label for="day_of_week">Días aplicables</label>
+                            <select id="day_of_week" name="day_of_week[]" class="form-control" multiple size="7">
+                                <?php foreach ($days as $value => $label): ?>
+                                    <?php if ($value === ''): ?>
+                                        <?php continue; ?>
+                                    <?php endif; ?>
+                                    <option value="<?= htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="form-text text-muted">Mantén presionada la tecla Ctrl en Windows para seleccionar varios días.</small>
+                            <div class="btn-group btn-group-sm mt-2 flex-wrap" role="group" aria-label="Presets de días">
+                                <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="weekday">Lun-Vie</button>
+                                <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="saturday">Sábado</button>
+                                <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="weekend">Sáb-Dom</button>
+                                <button type="button" class="btn btn-outline-secondary mb-1 mr-1" data-day-preset="all">Todos</button>
+                                <button type="button" class="btn btn-outline-light mb-1" data-day-preset="clear">Limpiar</button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group mb-4">
-                        <label for="assignment_active">Estado</label>
-                        <select id="assignment_active" name="active" class="form-control">
-                            <option value="1">Activo</option>
-                            <option value="0">Inactivo</option>
-                        </select>
-                    </div>
+                        <div class="row">
+                            <div class="col-6 form-group mb-3">
+                                <label for="valid_from">Válido desde</label>
+                                <input type="date" id="valid_from" name="valid_from" class="form-control">
+                            </div>
+                            <div class="col-6 form-group mb-3">
+                                <label for="valid_to">Válido hasta</label>
+                                <input type="date" id="valid_to" name="valid_to" class="form-control">
+                            </div>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary btn-block btn-icon-label">
-                        <i class="bi bi-link-45deg mr-2"></i>
-                        <span>Asignar horario</span>
-                    </button>
-                </form>
+                        <div class="form-group mb-4">
+                            <label for="assignment_active">Estado</label>
+                            <select id="assignment_active" name="active" class="form-control">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block btn-icon-label">
+                            <i class="bi bi-link-45deg mr-2"></i>
+                            <span>Asignar horario</span>
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <div class="text-muted">No tienes permisos para asignar horarios.</div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -249,13 +266,17 @@ $groupCount = (int) ($groupCount ?? 0);
                                         </span>
                                     </td>
                                     <td class="text-right table-actions pr-4 text-nowrap">
-                                        <form method="post" action="<?= htmlspecialchars(site_url('admin/horarios/asignaciones/' . (int) $assignment['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline" data-confirm-delete>
-                                            <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-label mb-1">
-                                                <i class="bi bi-x-circle mr-2"></i>
-                                                <span>Quitar</span>
-                                            </button>
-                                        </form>
+                                        <?php if ($canManageSchedules): ?>
+                                            <form method="post" action="<?= htmlspecialchars(site_url('admin/horarios/asignaciones/' . (int) $assignment['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline" data-confirm-delete>
+                                                <input type="hidden" name="_csrf" value="<?= htmlspecialchars(\App\Core\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-label mb-1">
+                                                    <i class="bi bi-x-circle mr-2"></i>
+                                                    <span>Quitar</span>
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

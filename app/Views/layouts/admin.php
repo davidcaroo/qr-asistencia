@@ -90,6 +90,22 @@ if ($error = flash('error')) {
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if (\App\Core\Auth::can('users.manage')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/usuarios'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-user-shield"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (\App\Core\Auth::can('roles.manage')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/roles'), ENT_QUOTES, 'UTF-8') ?>">
+                        <i class="fas fa-fw fa-shield-alt"></i>
+                        <span>Roles</span>
+                    </a>
+                </li>
+            <?php endif; ?>
             <?php if (\App\Core\Auth::can('audit.view')): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= htmlspecialchars(site_url('admin/auditoria'), ENT_QUOTES, 'UTF-8') ?>">

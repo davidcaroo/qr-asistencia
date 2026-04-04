@@ -21,6 +21,48 @@ CREATE TABLE admin_users (
   UNIQUE KEY uq_admin_users_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE roles (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(120) NOT NULL,
+  slug VARCHAR(120) NOT NULL,
+  description VARCHAR(255) NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_roles_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE permissions (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(150) NOT NULL,
+  slug VARCHAR(150) NOT NULL,
+  description VARCHAR(255) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_permissions_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE role_permissions (
+  role_id BIGINT UNSIGNED NOT NULL,
+  permission_id BIGINT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (role_id, permission_id),
+  KEY idx_role_permissions_permission (permission_id),
+  CONSTRAINT fk_role_permissions_role FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_role_permissions_permission FOREIGN KEY (permission_id) REFERENCES permissions (id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE admin_user_roles (
+  admin_user_id BIGINT UNSIGNED NOT NULL,
+  role_id BIGINT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (admin_user_id),
+  KEY idx_admin_user_roles_role (role_id),
+  CONSTRAINT fk_admin_user_roles_user FOREIGN KEY (admin_user_id) REFERENCES admin_users (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_admin_user_roles_role FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE employee_groups (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(120) NOT NULL,
@@ -135,3 +177,72 @@ CREATE TABLE audit_logs (
 INSERT INTO employee_groups (name, slug, description, active) VALUES
   ('Administrativo', 'administrativo', 'Personal administrativo', 1),
   ('Operativo', 'operativo', 'Personal operativo', 1);
+
+INSERT INTO roles (name, slug, description, active) VALUES
+  ('Superadmin', 'superadmin', 'Acceso total al sistema', 1),
+  ('RRHH', 'rrhh', 'Gestiona personal y horarios', 1),
+  ('Supervisor', 'supervisor', 'Supervision operativa y reportes', 1),
+  ('Operador', 'operator', 'Acceso operativo basico', 1);
+
+INSERT INTO permissions (name, slug, description) VALUES
+  ('Ver dashboard', 'dashboard.view', 'Acceso al panel principal'),
+  ('Gestionar grupos', 'groups.manage', 'Crear y editar grupos'),
+  ('Ver empleados', 'employees.view', 'Consultar empleados'),
+  ('Gestionar empleados', 'employees.manage', 'Crear, editar o eliminar empleados'),
+  ('Gestionar horarios', 'schedules.manage', 'Crear, editar o eliminar horarios'),
+  ('Ver reportes', 'reports.view', 'Acceder a reportes'),
+  ('Ver QR', 'qr.view', 'Acceder a QR global'),
+  ('Ver auditoria', 'audit.view', 'Acceder a auditoria'),
+  ('Gestionar roles', 'roles.manage', 'Crear y editar roles'),
+  ('Gestionar usuarios', 'users.manage', 'Crear y editar usuarios administradores');
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.slug IN (
+  'dashboard.view',
+  'groups.manage',
+  'employees.view',
+  'employees.manage',
+  'schedules.manage',
+  'reports.view',
+  'qr.view',
+  'audit.view',
+  'roles.manage',
+  'users.manage'
+)
+WHERE r.slug = 'superadmin';
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.slug IN (
+  'dashboard.view',
+  'groups.manage',
+  'employees.view',
+  'employees.manage',
+  'schedules.manage',
+  'reports.view',
+  'qr.view'
+)
+WHERE r.slug = 'rrhh';
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.slug IN (
+  'dashboard.view',
+  'employees.view',
+  'reports.view',
+  'qr.view'
+)
+WHERE r.slug = 'supervisor';
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+JOIN permissions p ON p.slug IN (
+  'dashboard.view',
+  'qr.view'
+)
+WHERE r.slug = 'operator';

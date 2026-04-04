@@ -1,5 +1,6 @@
 <?php
 $groups = $groups ?? [];
+$canManageGroups = \App\Core\Auth::can('groups.manage');
 ?>
 
 <div class="card shadow-sm border-0">
@@ -9,12 +10,14 @@ $groups = $groups ?? [];
                 <h2 class="h5 mb-0 font-weight-bold">Grupos</h2>
                 <p class="text-muted mb-0 small">Administra los grupos que luego se asignan a empleados y horarios.</p>
             </div>
-            <div class="d-flex flex-wrap mt-2 mt-md-0">
-                <a href="<?= htmlspecialchars(site_url('admin/grupos/nuevo'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary btn-sm btn-icon-label mb-2">
-                    <i class="bi bi-people-plus mr-2"></i>
-                    <span>Nuevo grupo</span>
-                </a>
-            </div>
+            <?php if ($canManageGroups): ?>
+                <div class="d-flex flex-wrap mt-2 mt-md-0">
+                    <a href="<?= htmlspecialchars(site_url('admin/grupos/nuevo'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary btn-sm btn-icon-label mb-2">
+                        <i class="bi bi-people-plus mr-2"></i>
+                        <span>Nuevo grupo</span>
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
     <div class="card-body border-bottom">
@@ -53,21 +56,25 @@ $groups = $groups ?? [];
                                 </span>
                             </td>
                             <td class="text-right table-actions pr-4 text-nowrap">
-                                <div class="d-inline-flex align-items-center justify-content-end flex-wrap">
-                                    <a href="<?= htmlspecialchars(site_url('admin/grupos/' . (int) $group['id'] . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline-primary btn-icon-only mb-1 mr-1" aria-label="Editar grupo" title="Editar grupo">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form method="post" action="<?= htmlspecialchars(site_url('admin/grupos/' . (int) $group['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline mb-1" data-confirm-delete>
-                                        <input type="hidden" name="_csrf" value="<?= htmlspecialchars(
-                                                                                        \App\Core\Csrf::token(),
-                                                                                        ENT_QUOTES,
-                                                                                        'UTF-8'
-                                                                                    ) ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-only" aria-label="Eliminar grupo" title="Eliminar grupo">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
+                                <?php if ($canManageGroups): ?>
+                                    <div class="d-inline-flex align-items-center justify-content-end flex-wrap">
+                                        <a href="<?= htmlspecialchars(site_url('admin/grupos/' . (int) $group['id'] . '/editar'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline-primary btn-icon-only mb-1 mr-1" aria-label="Editar grupo" title="Editar grupo">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="post" action="<?= htmlspecialchars(site_url('admin/grupos/' . (int) $group['id'] . '/eliminar'), ENT_QUOTES, 'UTF-8') ?>" class="d-inline mb-1" data-confirm-delete>
+                                            <input type="hidden" name="_csrf" value="<?= htmlspecialchars(
+                                                                                            \App\Core\Csrf::token(),
+                                                                                            ENT_QUOTES,
+                                                                                            'UTF-8'
+                                                                                        ) ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger btn-icon-only" aria-label="Eliminar grupo" title="Eliminar grupo">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
