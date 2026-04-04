@@ -7,6 +7,7 @@ namespace App\Infrastructure\Repositories;
 use App\Core\Database;
 use PDO;
 use DateTimeImmutable;
+use DateTimeZone;
 
 final class AttendanceRepository
 {
@@ -19,7 +20,7 @@ final class AttendanceRepository
 
     public function recentForEmployee(int $employeeId, int $minutes): ?array
     {
-        $cutoff = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->modify('-' . $minutes . ' minutes');
+        $cutoff = $this->now()->modify('-' . $minutes . ' minutes');
         $stmt = $this->pdo->prepare('
             SELECT *
             FROM attendance_records
@@ -43,11 +44,14 @@ final class AttendanceRepository
             SELECT *
             FROM attendance_records
             WHERE employee_id = :employee_id
-              AND attendance_date = UTC_DATE()
+              AND attendance_date = :attendance_date
             ORDER BY marked_at DESC
             LIMIT 1
         ');
-        $stmt->execute(['employee_id' => $employeeId]);
+        $stmt->execute([
+            'employee_id' => $employeeId,
+            'attendance_date' => $this->todayDate(),
+        ]);
 
         $row = $stmt->fetch();
 
@@ -119,10 +123,22 @@ final class AttendanceRepository
 
     private function countTodayBy(string $whereSql, array $params = []): int
     {
-        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM attendance_records WHERE attendance_date = UTC_DATE()' . $whereSql);
-        $stmt->execute($params);
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM attendance_records WHERE attendance_date = :attendance_date' . $whereSql);
+        $stmt->execute(array_merge(['attendance_date' => $this->todayDate()], $params));
 
         return (int) $stmt->fetchColumn();
+    }
+
+    private function now(): DateTimeImmutable
+    {
+        $timezone = new DateTimeZone((string) config('app', 'timezone', 'UTC'));
+
+        return new DateTimeImmutable('now', $timezone);
+    }
+
+    private function todayDate(): string
+    {
+        return $this->now()->format('Y-m-d');
     }
 
     public function monthlyEmployeeSummary(DateTimeImmutable $startDate, DateTimeImmutable $endDate, ?int $employeeId = null, ?int $groupId = null): array
